@@ -6,7 +6,6 @@ import Quiz from './Quiz.js';
 import GameControl from './GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
 import GameLevelMeteorBlaster from './GameLevelMeteorBlaster.js';
-import Joker from './Joker.js'
 
 class GameLevelDesert {
   constructor(gameEnv) {
@@ -50,31 +49,7 @@ class GameLevelDesert {
         keypress: { up: 87, left: 65, down: 83, right: 68 } // W, A, S, D
     };
 
-    // Joker data
-    const idle_sheet_joker = path + "/images/gamify/JokerIdle.png";
-    const running_sheet_joker = path + '/images/gamify/JokerRunning.png';
-    const attack_sheet_joker = path + '/images/gamify/JokerBaseAttack.png';
-    const data_joker = {
-      keypress: {
-        left: 65,   // 'A' key for left movement
-        right: 68,  // 'D' key for right movement
-        attack: 74  // 'J' key for attack
-      },
-      idleSheet: idle_sheet_joker,
-      runningSheet: running_sheet_joker,
-      attackSheet: attack_sheet_joker,
-      spriteData: {
-        idle: {
-          pixels: { width: 116, height: 112 },
-        },
-        running: {
-          pixels: { width: 224, height: 44 },
-        },
-        attack: {
-          pixels: { width: 192, height: 106 },
-        }
-      }
-    };
+
     // NPC data for Tux 
     const sprite_src_tux = path + "/images/gamify/tux.png"; // be sure to include the path
     const sprite_greet_tux = "Hi I am Tux, the Linux mascot.  I am very happy to spend some linux shell time with you!";
@@ -319,8 +294,7 @@ class GameLevelDesert {
       { class: Npc, data: sprite_data_robot },
       { class: Npc, data: sprite_data_r2d2 },
       { class: Npc, data: sprite_data_stocks },
-      { class: Npc, data: sprite_data_crypto},
-      { class: Joker, data: data_joker}
+      { class: Npc, data: sprite_data_crypto}
     ];
     
   }
