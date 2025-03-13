@@ -6,7 +6,7 @@ class Joker extends GameObject {
         console.log("Joker constructor called with data:", data);
         console.log("Game Environment: ", gameEnv);
         if (!data) throw new Error("Joker requires data!");
-        super(gameEnv);
+        super(gameEnv); 
         console.log("Game Environment 22222: ", gameEnv);
 
         // Initialize properties
