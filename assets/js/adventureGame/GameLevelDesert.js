@@ -68,7 +68,7 @@ class GameLevelDesert {
           pixels: { width: 116, height: 112 },
         },
         running: {
-          pixels: { width: 224, height: 44 },
+          pixels: { width: 224, height: 88 },
         },
         attack: {
           pixels: { width: 192, height: 106 },
