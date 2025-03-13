@@ -1,7 +1,7 @@
 /**
  * The GameObject class serves as a base class for all game objects.
  * It mimics an interface by defining abstract methods that must be implemented
- * by any subclass. This ensures that all game objects have a consistent interfaces
+ * by any subclass. This ensures that all game objects have a consistent interface
  * and can be managed uniformly within GameControl.js.
  * 
  * @class GameObject
@@ -131,7 +131,7 @@ class GameObject {
         const touchPoints = {
             this: {
                 id: this.canvas.id,
-                greet: this.spriteData.greeting,
+                greet: this.spriteData?.greeting || "No greeting", // Check for greeting, default if not found
                 top: thisBottom > otherTop && thisTop < otherTop,
                 bottom: thisTop < otherBottom && thisBottom > otherBottom,
                 left: thisRight > otherLeft && thisLeft < otherLeft,
@@ -139,8 +139,8 @@ class GameObject {
             },
             other: {
                 id: other.canvas.id,
-                greet: other.spriteData.greeting,
-                reaction: other.spriteData.reaction,
+                greet: other.spriteData?.greeting || "No greeting", // Check for greeting, default if not found
+                reaction: other.spriteData?.reaction || function() {}, // Check for reaction, default if not found
                 top: otherBottom > thisTop && otherTop < thisTop,
                 bottom: otherTop < thisBottom && otherBottom > thisBottom,
                 left: otherRight > thisLeft && otherLeft < thisLeft,
@@ -171,11 +171,18 @@ class GameObject {
      * @param {*} other 
      */
     handleCollisionReaction(other) {
-        if (other.reaction && typeof other.reaction === "function") {
-            other.reaction();
-            return;
+        // Only access 'greet' if it exists on 'other'
+        if (other && other.greet) {
+            console.log(other.greet);
+        } else {
+            // If 'greet' doesn't exist, log a message or handle it in another way
+            console.log("No greeting found for this object");
         }
-        console.log(other.greet);
+    
+        // If there's a reaction function, call it
+        if (other && other.reaction && typeof other.reaction === "function") {
+            other.reaction();
+        }
     }
 
     /**
