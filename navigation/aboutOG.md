@@ -4,8 +4,8 @@ title: About us
 permalink: /navigation/aboutOG
 ---
 ## Our names
-# We are Santhosh, Yusuf, Rishabh, Nicholas, Aria, and Dylan
-<!DOCTYPE html>
+# We are Santhosh, Yusuf, Rishabh, Nicolas, Aria, and Dylan
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">

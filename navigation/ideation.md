@@ -3,10 +3,7 @@ layout: base
 title: Ideation
 permalink: /navigation/ideation
 ---
-layout: base
-title: Ideation
-permalink: /navigation/ideation
----
+
 
 ## Platformer Project Ideation
 
