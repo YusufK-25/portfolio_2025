@@ -20,7 +20,7 @@
             background: #222;
             padding: 20px;
             text-align: center;
-            font-size: 32px; /* Increased title size */
+            font-size: 32px;
             font-weight: bold;
         }
         .container {
@@ -32,8 +32,8 @@
             flex-wrap: nowrap;
         }
         .box {
-            background: #333; /* Darker gray */
-            padding: 20px;
+            background: #333;
+            padding: 15px;
             border-radius: 10px;
             border: 2px solid white;
             color: white;
@@ -47,15 +47,29 @@
             word-wrap: break-word;
         }
         .box h2 {
-            font-size: 2.4em; /* Scales with text */
+            font-size: 2.4em;
         }
         .box p {
-            font-size: 1.2em; /* Increased text size */
+            font-size: 1.2em;
+        }
+        a {
+            color: #1E90FF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #FFD700;
+        }
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Left Box -->
         <div class="box">
             <h2>Meet The Developers</h2>
             <div>
@@ -67,11 +81,22 @@
                 <p>Rishabh J.</p>
             </div>
         </div>
-        <div class="box">
-            <h2>Ideation</h2>
-            <div>
-                <p>Here is a link to out ideation page:</p>
-                <a href="{{site.baseurl}}/navigation/ideation" id="sidebar-header"> Ideation Page</a>
+
+        <!-- Right Column with two stacked boxes -->
+        <div class="right-column">
+            <div class="box">
+                <h2>Ideation</h2>
+                <div>
+                    <p>Here is a link to our Ideation page:</p>
+                    <a href="navigation/ideation">Ideation Page</a>
+                </div>
+            </div>
+            <div class="box">
+                <h2>About US</h2>
+                <div>
+                    <p>Here is a link to our About Us page:</p>
+                    <a href="navigation/aboutOG">About Us</a>
+                </div>
             </div>
         </div>
     </div>
