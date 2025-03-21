@@ -5,8 +5,11 @@
     <title>Home Page</title>
     <style>
         body {
-            background: url('background.png') no-repeat center center fixed;
+            background: url('background2.jpeg') no-repeat center center fixed;
             background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            image-rendering: crisp-edges; /* Helps with clarity */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -15,27 +18,24 @@
             height: 100vh;
             margin: 0;
         }
-        .header {
-            width: 100%;
-            background: #222;
-            padding: 20px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-        }
         .container {
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 20px;
+            gap: 90px; /* Increased space between left and right columns */
             margin-top: 20px;
             flex-wrap: nowrap;
         }
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
         .box {
-            background: #333;
+            background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
             padding: 15px;
             border-radius: 10px;
-            border: 2px solid white;
+            border: 2px solid black; /* Black border */
             color: white;
             text-align: center;
             width: 500px;
@@ -69,20 +69,25 @@
 </head>
 <body>
     <div class="container">
-        <!-- Left Box -->
-        <div class="box">
-            <h2>Meet The Developers</h2>
-            <div>
-                <p>Nicolas D.</p>
-                <p>Aria S.</p>
-                <p>Santhosh K.</p>
-                <p>Yusuf K.</p>
-                <p>Dylan C.</p>
-                <p>Rishabh J.</p>
+        <!-- Left Column with Two Stacked Boxes -->
+        <div class="column">
+            <div class="box">
+                <h2>Meet The Developers</h2>
+                <div>
+                    <p>Nicolas D.</p>
+                    <p>Aria S.</p>
+                    <p>Santhosh K.</p>
+                    <p>Yusuf K.</p>
+                    <p>Rishabh J.</p>
+                </div>
+            </div>
+            <!-- New Box Under "Meet The Developers" -->
+            <div class="box">
+                <h2>Our Hacks</h2>
+                <p>Here is a link to our Hacks page.</p>
             </div>
         </div>
-
-        <!-- Right Column with two stacked boxes -->
+        <!-- Right Column with Two Stacked Boxes -->
         <div class="right-column">
             <div class="box">
                 <h2>Ideation</h2>
@@ -92,7 +97,7 @@
                 </div>
             </div>
             <div class="box">
-                <h2>About US</h2>
+                <h2>About Us</h2>
                 <div>
                     <p>Here is a link to our About Us page:</p>
                     <a href="navigation/aboutOG">About Us</a>
