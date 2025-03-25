@@ -40,39 +40,10 @@ class GameControl {
      * 3. Starting the game loop
      */ 
     transitionToLevel() {
-        let opacity = 0;
-        const fadeToBlack = () => {
-            ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-            ctx.fillRect(0, 0, width, height);
-            opacity += 0.05;
-            if (opacity <= 1) {
-                requestAnimationFrame(fadeToBlack);
-            } else {
-                setTimeout(() => {
-                    this.currentLevel = new GameLevel(this);
-                    this.currentLevel.create(GameLevelClass);
-                    fadeFromBlack();
-                }, 500);
-            }
-        };
-
-        const fadeFromBlack = () => {
-            opacity = 1;
-            const fadeOut = () => {
-                ctx.clearRect(0, 0, width, height);
-                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-                ctx.fillRect(0, 0, width, height);
-                opacity -= 0.05;
-                if (opacity >= 0) {
-                    requestAnimationFrame(fadeOut);
-                } else {
-                    this.gameLoop();
-                }
-            };
-            fadeOut();
-        };
-
-        fadeToBlack();
+        const GameLevelClass = this.levelClasses[this.currentLevelIndex];
+        this.currentLevel = new GameLevel(this);
+        this.currentLevel.create(GameLevelClass);
+        this.gameLoop();
     }
 
     /**

@@ -1,9 +1,7 @@
 import GameEnv from './GameEnv.js';
 import GameObject from './GameObject.js';
 
-/** Background class for primary background
- * 
- */
+/** Background class for primary background */
 export class Background extends GameObject {
     constructor(data = null, gameEnv = null) {
         super(gameEnv);
@@ -15,16 +13,12 @@ export class Background extends GameObject {
         }
     }
 
-    /** For primary background, update is the same as draw
-     * 
-     */
+    /** For primary background, update is the same as draw */
     update() {
         this.draw();
     }
 
-    /** This method draws to GameEnv context, primary background
-     * 
-     */
+    /** This method draws to GameEnv context, primary background */
     draw() {
         const ctx = this.gameEnv.ctx;
         const width = this.gameEnv.innerWidth;
@@ -40,23 +34,60 @@ export class Background extends GameObject {
         }
     }
 
-    /** For primary background, resize is the same as draw
-     *
-     */
+    /** For primary background, resize is the same as draw */
     resize() {
         this.draw();
     }
 
-    /** Destroy Game Object
-     * remove object from this.gameEnv.gameObjects array
-     */
+    /** Destroy Game Object */
     destroy() {
         const index = this.gameEnv.gameObjects.indexOf(this);
         if (index !== -1) {
             this.gameEnv.gameObjects.splice(index, 1);
         }
     }
-    
+}
+
+/** Parallax Meteor Background */
+export class BackgroundMeteor extends Background {
+    constructor(data = null, gameEnv = null) {
+        super(data, gameEnv);
+        this.meteors = [];
+
+        // Generate random meteors
+        for (let i = 0; i < 20; i++) {
+            this.meteors.push({
+                x: Math.random() * gameEnv.innerWidth,
+                y: Math.random() * gameEnv.innerHeight,
+                size: Math.random() * 5 + 2,
+                speed: Math.random() * 2 + 0.5
+            });
+        }
+    }
+
+    update() {
+        super.update();
+
+        // Move meteors downward
+        this.meteors.forEach(meteor => {
+            meteor.y += meteor.speed;
+            if (meteor.y > this.gameEnv.innerHeight) {
+                meteor.y = -meteor.size;
+                meteor.x = Math.random() * this.gameEnv.innerWidth;
+            }
+        });
+    }
+
+    draw() {
+        super.draw();
+        const ctx = this.gameEnv.ctx;
+
+        // Draw meteors
+        ctx.fillStyle = 'black';
+        this.meteors.forEach(meteor => {
+            ctx.fillRect(meteor.x, meteor.y, meteor.size, meteor.size);
+        });
+    }
 }
 
 export default Background;
