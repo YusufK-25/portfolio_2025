@@ -320,7 +320,6 @@ class GameLevelDesert {
       { class: Npc, data: sprite_data_r2d2 },
       { class: Npc, data: sprite_data_stocks },
       { class: Npc, data: sprite_data_crypto},
-      { class: Joker, data: data_joker}
     ];
     
   }
