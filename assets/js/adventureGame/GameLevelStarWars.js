@@ -11,19 +11,44 @@ class GameLevelStarWars {
     let path = gameEnv.path;
 
     // Background data
-    const image_src_atat = path + "/images/gamify/atat_background.png"; // be sure to include the path
+    const image_src_atat = path + "/images/gamify/atat_background.png"; // Default background
+    const image_src_alternate = path + "/images/gamify/starwar.png"; // Alternate background (replace this with your path)
+
+    let currentBackground = image_src_atat; // Default background
+
     const image__data_atat = {
         id: 'AT-AT-Background',
-        src: image_src_atat,
+        src: currentBackground,
         pixels: {height: 570, width: 1025}
     };
+
+    // Create the background switch button
+    const button = document.createElement('button');
+    button.innerText = "Switch Background";
+    button.style.position = 'absolute';
+    button.style.top = '20px';
+    button.style.right = '20px';
+    button.style.padding = '10px 20px';
+    button.style.backgroundColor = '#ff4c4c';
+    button.style.color = '#fff';
+    button.style.border = 'none';
+    button.style.borderRadius = '8px';
+    button.style.cursor = 'pointer';
+    button.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+    document.body.appendChild(button);
+
+    // Handle background switch
+    button.addEventListener('click', () => {
+      currentBackground = currentBackground === image_src_atat ? image_src_alternate : image_src_atat;
+      document.querySelector('#AT-AT-Background').src = currentBackground;
+    });
 
     // Player data for snowspeeder
     const sprite_src_snowspeeder = path + "/images/gamify/snowspeeder_sprite2.png"; // be sure to include the path
     const SNOWSPEEDER_SCALE_FACTOR = 6;
     const sprite_data_snowspeeder = {
         id: 'Snowspeeder',
-        greeting: "Hi I am snowspeeder, the desert wanderer. I am trying to take donwn the empire's AT-ATs!",
+        greeting: "Hi I am snowspeeder, the desert wanderer. I am trying to take down the empire's AT-ATs!",
         src: sprite_src_snowspeeder,
         SCALE_FACTOR: SNOWSPEEDER_SCALE_FACTOR,
         STEP_FACTOR: 1000,
@@ -53,7 +78,7 @@ class GameLevelStarWars {
       id: 'Turret-Anti-Air',
       greeting: "I am the Anti-Air Turret. I am here to take down the snowspeeder!",
       src: sprite_src_turret,
-      SCALE_FACTOR: TURRET_SCALE_FACTOR,  // Adjust this based on your scaling needs
+      SCALE_FACTOR: TURRET_SCALE_FACTOR,
       ANIMATION_RATE: 100,
       pixels: {width: 1056, height: 236},
       INIT_POSITION: { x: width - (height/TURRET_SCALE_FACTOR), y: height - .82*(height/TURRET_SCALE_FACTOR) }, 
@@ -67,38 +92,31 @@ class GameLevelStarWars {
     const sprite_data_laser1 = {
         id: 'AT-AT-Laser-1',
         greeting: "Simulate explosive action!",
-        // define image/sprite data
         src: sprite_src_laser,
-        pixels: {height: 500, width: 500}, // height and width of the image
-        orientation: {rows: 1, columns: 1 }, // normalized rows and columns in the sprite
-        // define size, position, adjustments for hitbox
-        SCALE_FACTOR: 30,  // Start small
-        INIT_POSITION_RATIO: { x: 1 / 1.78, y: 1 / 3.3 }, // Ratios for initial position
+        pixels: {height: 500, width: 500},
+        orientation: {rows: 1, columns: 1 },
+        SCALE_FACTOR: 30,
+        INIT_POSITION_RATIO: { x: 1 / 1.78, y: 1 / 3.3 },
         hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
-        // define animation properties
-        TRANSLATE_SCALE_FACTOR: 10, // Grow to this size at end translation
-        TRANSLATE_POSITION_RATIO: { x: 1 / 2.78, y: 1 / 2.9 }, // Ratios for translate position
-        TRANSLATE_SIMULATION: {miliseconds: 500 }, // 1 second
-        down: {row: 0, start: 0, columns: 3, spin: 4},  // down is default
+        TRANSLATE_SCALE_FACTOR: 10,
+        TRANSLATE_POSITION_RATIO: { x: 1 / 2.78, y: 1 / 2.9 },
+        TRANSLATE_SIMULATION: {miliseconds: 500 },
+        down: {row: 0, start: 0, columns: 3, spin: 4},
      };
 
-     // Laser data, temporary sprite for testing
     const sprite_data_laser2 = {
         id: 'AT-AT-Laser-2',
         greeting: "Simulate explosive action!",
-        // define image/sprite data
         src: sprite_src_laser,
-        pixels: {height: 500, width: 500}, // height and width of the image
-        orientation: {rows: 1, columns: 1 }, // normalized rows and columns in the sprite
-        // define size, position, adjustments for hitbox
-        SCALE_FACTOR: 60,  // Start small 
-        INIT_POSITION_RATIO: { x: 1 / 8, y: 1 / 1.95 }, // Ratios for initial position
+        pixels: {height: 500, width: 500},
+        orientation: {rows: 1, columns: 1 },
+        SCALE_FACTOR: 60,
+        INIT_POSITION_RATIO: { x: 1 / 8, y: 1 / 1.95 },
         hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
-        // define animation properties
-        TRANSLATE_SCALE_FACTOR: 20, // Grow to this size at end translation
-        TRANSLATE_POSITION_RATIO: { x: 1 / 20, y: 1 / 1.9 }, // Ratios for translate position
-        TRANSLATE_SIMULATION: {miliseconds: 500 }, // 1 second
-        down: {row: 0, start: 0, columns: 1, spin: 4},  // down is default
+        TRANSLATE_SCALE_FACTOR: 20,
+        TRANSLATE_POSITION_RATIO: { x: 1 / 20, y: 1 / 1.9 },
+        TRANSLATE_SIMULATION: {miliseconds: 500 },
+        down: {row: 0, start: 0, columns: 1, spin: 4},
      };
 
     // List of objects definitions for this level
