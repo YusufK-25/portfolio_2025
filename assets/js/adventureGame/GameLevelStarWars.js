@@ -45,6 +45,60 @@ class GameLevelStarWars {
           alert("We just got hit by a projectile!");
         }
     };
+    // NPC data for scaryskibidi
+    const sprite_src_skibidi = path + "/images/gamify/skibidi.png"; // be sure to include the path
+    const sprite_greet_skibidi = "skibidi.";
+    const sprite_data_skibidi = {
+        id: 'skibidi',
+        greeting: sprite_greet_skibidi,
+        src: sprite_src_skibidi,
+        SCALE_FACTOR: 4,  // Adjust this based on your scaling needs
+        ANIMATION_RATE: 25,
+        pixels: {height: 1200, width: 1600},
+        INIT_POSITION: { x: 100, y: 100 },
+        orientation: {rows: 1, columns: 2 },
+        down: {row: 0, start: 0, columns: 2 },
+        right: {row: 0, start: 0, columns: 2 },
+        left: {row: 0, start: 0, columns: 2 },
+        up: {row: 0, start: 0, columns: 2 },  // This is the stationary npc, down is default
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        walkingArea: {
+          xMin: width / 10, //left boundary
+          xMax: (width * 5 / 7), //right boundary
+          yMin: height / 4, //top boundary
+          yMax: (height * 8 / 15) //bottom boundary
+        },
+        speed : 5,
+        direction: { x: 1, y: 1 },
+        updatePosition: function () {
+          console.log(`skibidi position: (${this.INIT_POSITION.x}, ${this.INIT_POSITION.y})`);
+          this.INIT_POSITION.x += this.direction.x * this.speed; // Update x position based on direction and speed
+          this.INIT_POSITION.y += this.direction.y * this.speed; // Update y position based on direction and speed
+          if (this.INIT_POSITION.x <= this.walkingArea.xMin) {
+            this.INIT_POSITION.x = this.walkingArea.xMin;
+            this.direction.x = 1;
+          }
+          if (this.INIT_POSITION.x >= this.walkingArea.xMax) {
+            this.INIT_POSITION.x = this.walkingArea.xMax;
+            this.direction.x = -1;
+          }
+          if (this.INIT_POSITION.y <= this.walkingArea.yMin) {
+            this.INIT_POSITION.y = this.walkingArea.yMin;
+            this.direction.y = 1;
+          }
+          if (this.INIT_POSITION.y >= this.walkingArea.yMax) {
+            this.INIT_POSITION.y = this.walkingArea.yMax;
+            this.direction.y = -1;
+          }
+        },
+        reaction: function () {
+          alert(sprite_greet_skibidi);
+        }
+      };
+      setInterval(() => {
+        sprite_data_skibidi.updatePosition();
+      }, 100); // update position every 100 milliseconds
+
 
     // NPC Data for Turret Anti-Air
     const sprite_src_turret = path + "/images/gamify/aa_spritesheet1.png"; // be sure to include the path
