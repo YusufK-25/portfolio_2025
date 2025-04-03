@@ -184,9 +184,6 @@
 <script type="module">
 import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
-//setTimeout(function() {
-//    location.reload();
-//}, 10000);
 const fetchOptions2 = {
     ...fetchOptions,
     credentials: 'omit',
@@ -223,12 +220,129 @@ function getTime()
 let users = loadUsers();
 console.log(users);
 document.addEventListener("DOMContentLoaded", function() {
-    const barcodeInput = document.getElementById("barcode-input");
-    barcodeInput.focus();
-
-    window.addEventListener('click', function(event) {
+        const barcodeInput = document.getElementById("barcode-input");
         barcodeInput.focus();
-    });
+
+        // Store teacher email in localStorage
+        const teacherEmailInput = document.getElementById('teacher-email');
+        teacherEmailInput.addEventListener('input', () => {
+            localStorage.setItem('teacherEmail', teacherEmailInput.value.trim());
+        });
+
+        // Re-enter teacher email on page load
+        const storedTeacherEmail = localStorage.getItem('teacherEmail');
+        if (storedTeacherEmail) {
+            teacherEmailInput.value = storedTeacherEmail;
+            addTeacherQueue(storedTeacherEmail, "");
+            fetchQueueData();    
+
+        }
+
+        barcodeInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                let barcode = barcodeInput.value.trim();
+                console.log("Scanned Barcode:", barcode);
+
+                // Check if barcode is empty
+                if (!barcode) {
+                    console.log("Empty barcode, ignoring...");
+                    return;
+                }
+                
+                // Handle returning user
+                let currentAway = document.getElementById('current-away').textContent.trim();
+                if (users[currentAway] === barcode) {
+                    console.log("Removing ", currentAway);                    
+                    var timeIn = getTime();
+                    var timeOut = localStorage.getItem("timeout");
+                    var time = `${timeOut}-${timeIn}`;
+                    
+                    const postOptions = {
+                        ...fetchOptions2,
+                        method: 'POST',
+                    }
+                    let tinkleBody = {
+                        studentEmail: currentAway,
+                        timeIn: time
+                    };
+
+                    setTimeout( function() {
+                        fetch(tinkleURL, {
+                            ...postOptions,
+                            body: JSON.stringify(tinkleBody),
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log("Time added to database");
+                            } else {
+                                alert("Failed to add time to database.");
+                            }
+                        })
+                    }
+                    ,500);
+                    removeUser(currentAway);
+                    const users = JSON.parse(localStorage.getItem('users')) || {};
+                    const usersLength = Object.keys(users).length;
+                    if(usersLength != 0)
+                    {
+                        addToQueue('Nobody');
+                    }
+
+                    console.log(currentAway, ' removed');
+                    removeFromQueue();
+                    check_glow();
+                    barcodeInput.value = "";
+                    location.reload(); // Reload the page after scan
+                    return;
+                }
+                if (currentAway === 'Nobody' & barcode == users[document.getElementById('next-up').textContent])
+                {
+                    removeFromQueue();
+                    fetchQueueData();
+                    var timeOut = getTime();
+                    localStorage.setItem("timeout", timeOut);
+                }
+                for (const key in users)
+                {
+                    if (barcode == users[key])
+                    {
+                        console.log('duplicate user. Get outta here and wait your turn.');
+                        return;
+                    }
+                }
+
+                // Fetch user info from the server
+                let name = "";
+                const name_by_sid_url = javaURI + `/api/${barcode}`;
+
+                //get name of scanned student 
+                fetch(name_by_sid_url, {
+                    ...fetchOptions2
+                })
+                    .then(response => response.text()) // Using response.text() for a string response.
+                    .then(data => {
+                        if(data != 'Not a valid barcode')
+                        {
+                            name = data; // Assigning the string data to 'name'.
+                            users[name] = barcode;
+                            saveUsers();
+                            console.log("User added: ", name);
+                            addToQueue(name);
+                            localStorage.setItem('timeout', getTime());
+                            console.log('timeout', getTime());
+                            location.reload(); // Reload the page after scan
+                        }
+                        else
+                        {
+                            console.log('Get outta here with that invalid id');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+                
+                barcodeInput.value = "";
+            }
+        });barcodeInput.focus();
+
     barcodeInput.addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
             let barcode = barcodeInput.value.trim();
@@ -271,22 +385,24 @@ document.addEventListener("DOMContentLoaded", function() {
                     })
                 }
                 ,500);
-                document.getElementById('current-away').innerHTML = 'Nobody';
-
+                //document.getElementById('current-away').innerHTML = 'Nobody';
+                localStorage.setItem('teacherEmail', teacherEmail);
                 removeUser(currentAway);
+                addToQueue('Nobody');
+
                 console.log(currentAway, ' removed');
-                setTimeout(
-                    removeFromQueue(),500);    
+                removeFromQueue();
+                fetchQueueData();    
                 check_glow();
                 barcodeInput.value = "";
                 return;
             }
             if (currentAway === 'Nobody' & barcode == users[document.getElementById('next-up').textContent])
             {
+                removeFromQueue();
                 fetchQueueData();
                 var timeOut = getTime();
                 localStorage.setItem("timeout", timeOut);
-                location.reload();
             }
             for (const key in users)
             {
@@ -324,51 +440,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 })
                 .catch(error => console.error('Error fetching data:', error));
             
-            //add to queue
-            function addToQueue(name){
-                let queue_load = {
-                    "studentName": name,
-                    "teacherEmail": teacherEmail,
-                    "uri": javaURI
-                }
-                const queueOptions = {
-                    ...fetchOptions2,
-                    method:'POST',
-                    body: JSON.stringify(queue_load),
-                }
-                fetch(javaURI + "/api/queue/add", queueOptions)
-                .then(response => {
-                    if(response.ok)
-                    {
-                        console.log(name, "added to queue");
-                        location.reload();
-                    }
-                    else {
-                        console.log("failed: ", response);
-                    }
-                })
-            }
-            //fetch("/scan-barcode", {
-                //method: "POST",
-               // headers: { "Content-Type": "application/json" },
-              //  body: JSON.stringify({ student_id: barcode })
-            //})
-            //.then(response => response.json())
-            //.then(resp => {
-               /// if (resp.student) {
-                    //users[resp.student] = barcode;
-                    //saveUsers(); // Save updated users list
-                   // console.log("User added:", resp.student);
-                   // localStorage.setItem('timeout', getTime())
-                 //   console.log('timeout', getTime());
-               // } else {
-                 //   console.log("Invalid response:", resp);
-               // }
-             //   location.reload();
-            //})
-           // .catch(error => console.error("Error:", error));
 
-            // Clear input field and refocus
+
             barcodeInput.value = "";
         }
     });
@@ -412,15 +485,17 @@ const addTeacherQueue = async (teacherEmail, peopleQueue) => {
         } else {
             const error = await response.text();
             console.error('Error:', error);
-            alert('Failed to add queue: ' + error);
+//            alert('Failed to add queue: ' + error);
         }
     } catch (error) {
         console.error('Fetch error:', error);
         alert('An error occurred while adding the queue.');
     }
+    finally {
+        barcodeFocus();
+    }
 };
 
-// const teacherEmail = "jmort1021@gmail.com";
 
 async function fetchLocations() {
     try {
@@ -466,29 +541,33 @@ async function fetchQueueData(teacherEmail) {
         const QueueURI = javaURI + "/api/queue/all";
         const response = await fetch(QueueURI, fetchOptions2);
 
-        if (response.status !== 200) return console.error("Failed to fetch queue data.");
-        
-        console.log(teacherEmail)
+        if (response.status !== 200) {
+            console.error("Failed to fetch queue data.");
+            return;
+        }
 
         const data = await response.json();
         teacherQueue = data.find(queue => queue.teacherEmail === teacherEmail);
 
-        if (!teacherQueue) return console.error("No queue found for the teacher.");
+        if (!teacherQueue) {
+            console.error("No queue found for the teacher.");
+            return;
+        }
 
         const queueArray = teacherQueue.peopleQueue.split(",");
         document.getElementById("current-away").textContent = queueArray[0] || "Nobody";
         document.getElementById("next-up").textContent = queueArray[1] || "None";
 
         const queueList = document.getElementById("queue-list");
-        queueList.innerHTML = "";
-        
+        queueList.innerHTML = ""; // Clear the existing list
+
         queueArray.slice(2).forEach(person => {
             const li = document.createElement("li");
             li.textContent = person;
             queueList.appendChild(li);
-            queueList.style.listStyleType = "none";
         });
-        check_glow();
+
+        check_glow(); // Update the glow status
     } catch (error) {
         console.error("Error fetching queue data:", error);
     }
@@ -527,6 +606,7 @@ window.addEventListener('click', function(event) {
 const deleteOptions = { ...fetchOptions2, method: 'DELETE' };
 
 function removeFromQueue() {
+    let teacherEmail = document.getElementById('teacher-email').value.trim();
     fetch(javaURI + "/api/queue/removefront/" + teacherEmail, deleteOptions)
         .then(response => {
             if (response.ok) {
@@ -587,7 +667,7 @@ function autoRemoveQueue() {
     processNextUser(0);
 }
 
-setTimeout(autoRemoveQueue, 15000);
+setTimeout(autoRemoveQueue, 150000);
 
 const bellSchedule = {
     "regDay": ["08:35", "09:41", "10:55", "11:32", "12:42", "13:13", "14:24", "15:35"],
@@ -627,6 +707,41 @@ function checkTimeAndRun() {
 // Check every minute
 setInterval(checkTimeAndRun, 30000);
 
+function barcodeFocus() {
+    const barcodeInput = document.getElementById("barcode-input");
+    console.log('focusing barcode');
+ 
+ 
+    barcodeInput.focus();
+}
+
+//add to queue
+//add to queue
+function addToQueue(name){
+
+    let teacherEmail = document.getElementById('teacher-email').value.trim();
+    let queue_load = {
+        "studentName": name,
+        "teacherEmail": teacherEmail,
+        "uri": javaURI
+    }
+    const queueOptions = {
+        ...fetchOptions2,
+        method:'POST',
+        body: JSON.stringify(queue_load),
+    }
+    fetch(javaURI + "/api/queue/add", queueOptions)
+    .then(response => {
+        if(response.ok)
+        {
+            console.log(name, "added to queue");
+//                        location.reload();
+        }
+        else {
+            console.log("failed: ", response);
+        }
+    })
+}
 </script>
 
 </html>
