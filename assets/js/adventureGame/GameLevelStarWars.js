@@ -162,7 +162,7 @@ class GameLevelStarWars {
       { class: Npc, data: sprite_data_turret },
       { class: Projectile, data: sprite_data_laser1 },
       { class: Projectile, data: sprite_data_laser2 },
-      { class: Enemy, data: sprite_data_skibidi },
+      { class: Npc, data: sprite_data_skibidi },
     ];
   }
 }
