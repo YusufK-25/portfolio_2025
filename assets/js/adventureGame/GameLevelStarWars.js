@@ -101,6 +101,97 @@ class GameLevelStarWars {
         down: {row: 0, start: 0, columns: 1, spin: 4},  // down is default
      };
 
+    // --- CUSTOM NPC 1: Rebel Informant ---
+    const sprite_data_informant = {
+      id: 'Rebel-Informant',
+      greeting: "Psst... The Empire is watching. Stay low.",
+      src: path + "/images/gamify/rebel_informant.png",
+      SCALE_FACTOR: 4,
+      INIT_POSITION: { x: 150, y: 150 },
+      pixels: { height: 256, width: 128 },
+      orientation: { rows: 1, columns: 1 },
+      down: { row: 0, start: 0, columns: 1 },
+      hitbox: { widthPercentage: 0.4, heightPercentage: 0.4 },
+      dialogue: {
+        text: "Be careful out there.",
+        button: null
+      }
+    };
+
+    // --- CUSTOM NPC 2: Rebel Medic with Special Button ---
+    const sprite_data_medic = {
+      id: 'Rebel-Medic',
+      greeting: "Need healing?",
+      src: path + "/images/gamify/rebel_medic.png",
+      SCALE_FACTOR: 4,
+      INIT_POSITION: { x: 300, y: 150 },
+      pixels: { height: 256, width: 128 },
+      orientation: { rows: 1, columns: 1 },
+      down: { row: 0, start: 0, columns: 1 },
+      hitbox: { widthPercentage: 0.4, heightPercentage: 0.4 },
+      dialogue: {
+        text: "Press the button to heal.",
+        button: {
+          label: "Heal Me",
+          action: (player) => {
+            player.health = Math.min(player.health + 50, 100); // Heal the player
+            console.log("Player healed!");
+          }
+        }
+      }
+    };
+
+    // --- ENEMY: Follows Player ---
+    const sprite_data_enemy = {
+      id: 'Enderman',
+      src: path + '/images/gamify/ederman.png',
+      SCALE_FACTOR: 7,
+      pixels: { height: 256, width: 128 },
+      INIT_POSITION: { x: width / 2, y: height / 4 },
+      orientation: { rows: 1, columns: 1 },
+      down: { row: 0, start: 0, columns: 1 },
+      zIndex: 10,
+      aggroRange: 300,
+      update: function () {
+        if (this.isKilling) return;
+
+        const players = this.gameEnv.gameObjects.filter(obj =>
+          obj.constructor.name === 'Player'
+        );
+
+        if (players.length === 0) return;
+
+        // Find nearest player
+        let nearest = players[0];
+        let minDist = Infinity;
+        for (const p of players) {
+          const dx = p.position.x - this.position.x;
+          const dy = p.position.y - this.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = p;
+          }
+        }
+
+        // Only chase within aggro range
+        if (minDist > this.aggroRange) return;
+
+        // Move towards player
+        this.position.x += Math.sign(nearest.position.x - this.position.x) * 3;
+        this.position.y += Math.sign(nearest.position.y - this.position.y) * 3;
+
+        // Check for collision with player
+        const dx = nearest.position.x - this.position.x;
+        const dy = nearest.position.y - this.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < nearest.hitbox.width * 0.5) {
+          this.isKilling = true;
+          alert('Game Over!');
+        }
+      }
+    };
+
     // List of objects definitions for this level
     this.classes = [
       { class: GameEnvBackground, data: image__data_atat },
@@ -108,6 +199,9 @@ class GameLevelStarWars {
       { class: Npc, data: sprite_data_turret },
       { class: Projectile, data: sprite_data_laser1 },
       { class: Projectile, data: sprite_data_laser2 },
+      { class: Npc, data: sprite_data_informant },
+      { class: Npc, data: sprite_data_medic },
+      { class: Npc, data: sprite_data_enemy },
     ];
   }
 }
