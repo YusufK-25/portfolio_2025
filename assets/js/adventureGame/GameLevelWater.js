@@ -1,9 +1,5 @@
-import GameEnvBackground from './GameEngine/GameEnvBackground.js';
-import Npc from './GameEngine/Npc.js';
-import Player from './GameEngine/Player.js';
-import GameControl from './GameEngine/GameControl.js';
-import GameLevelStarWars from './GameLevelStarWars.js';
 import Shark from './Shark.js';
+import Goldfish from './Goldfish.js';
 
 class GameLevelWater {
   /**
@@ -11,6 +7,7 @@ class GameLevelWater {
    * @param {*} gameEnv - The active game environment
    */
   constructor(gameEnv) {
+    super(gameEnv);
     // Dependencies to support game level creation
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
@@ -206,6 +203,27 @@ class GameLevelWater {
       { class: Npc, data: sprite_data_nomad },
       { class: Shark, data: sprite_data_shark },
     ];
+  }
+
+  setup() {
+    super.setup();
+    // ✅ Place the Goldfish setup here:
+    const path = this.gameEnv.path;
+    const sprite_src_gold = path + "/images/gamify/Shark1.png";
+    const sprite_data_gold = {
+      id: 'Shark',
+      greeting: "Enemy Shark",
+      src: sprite_src_gold,
+      SCALE_FACTOR: 2.5,
+      ANIMATION_RATE: 10,
+      pixels: { height: 66, width: 328 },
+      INIT_POSITION: { x: this.gameEnv.innerWidth / 2, y: this.gameEnv.innerHeight / 2 },
+      orientation: { rows: 1, columns: 4 },
+      down: { row: 0, start: 0, columns: 4 },
+      hitbox: { widthPercentage: 0.4, heightPercentage: 0.6 }
+    };
+    const goldfish = new Goldfish(sprite_data_gold);
+    this.gameEnv.addEnemy(goldfish);
   }
 }
 
