@@ -7,7 +7,6 @@ class GameLevelWater {
    * @param {*} gameEnv - The active game environment
    */
   constructor(gameEnv) {
-    super(gameEnv);
     // Dependencies to support game level creation
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
