@@ -1,4 +1,5 @@
 import Character from './Character.js';
+import HomingProjectile from './HomingProjectile.js'; // Import the HomingProjectile class
 
 // Define non-mutable constants as defaults
 const SCALE_FACTOR = 25; // 1/nth of the height of the canvas
@@ -113,7 +114,43 @@ class Player extends Character {
     }
     update() {
         super.update();
-        if(!this.moved){
+        
+        // Update projectiles more efficiently
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            
+            if (!projectile.active) {
+                // Remove inactive projectiles
+                this.projectiles.splice(i, 1);
+                
+                // Also remove from game objects if it's still there
+                const gameIndex = this.gameEnv.gameObjects.indexOf(projectile);
+                if (gameIndex > -1) {
+                    this.gameEnv.gameObjects.splice(gameIndex, 1);
+                }
+                continue;
+            }
+            
+            // Update the projectile
+            projectile.update();
+            
+            // Check if projectile went out of bounds
+            if (projectile.position.x < -50 || projectile.position.x > this.gameEnv.innerWidth + 50 ||
+                projectile.position.y < -50 || projectile.position.y > this.gameEnv.innerHeight + 50) {
+                
+                projectile.active = false;
+                this.projectiles.splice(i, 1);
+                
+                // Remove from game objects array
+                const gameIndex = this.gameEnv.gameObjects.indexOf(projectile);
+                if (gameIndex > -1) {
+                    this.gameEnv.gameObjects.splice(gameIndex, 1);
+                }
+            }
+        }
+        
+        // Gravity logic
+        if (!this.moved) {
             if (this.gravity) {
                     this.time += 1;
                     this.velocity.y += 0.5 + this.acceleration * this.time;
@@ -136,8 +173,6 @@ class Player extends Character {
         this.updateVelocityAndDirection();
         super.handleCollisionReaction(other);
     }
-
-
 }
 
 export default Player;
