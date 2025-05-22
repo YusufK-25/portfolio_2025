@@ -34,9 +34,10 @@ class Collectible extends Character {
 
     update() {
         this.draw();
-        // Check if player is still in collision
+        
+        // FIX: Add safety checks for state and collisionEvents
         const players = this.gameEnv.gameObjects.filter(
-            obj => obj.state.collisionEvents.includes(this.spriteData.id)
+            obj => obj.state && obj.state.collisionEvents && obj.state.collisionEvents.includes(this.spriteData.id)
         );
         
         // Reset interaction state if player moved away

@@ -111,6 +111,7 @@ class GameLevelEnd {
         id: 'Enderman',
         greeting: "You feel a dark presence...",
         src: sprite_src_enemy,
+        isEnemy: true,
         SCALE_FACTOR: 10,
         ANIMATION_RATE: 50,
         pixels: {height: 1504, width: 574},
