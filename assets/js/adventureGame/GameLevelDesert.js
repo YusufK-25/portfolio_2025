@@ -10,6 +10,7 @@ import GameLevelMeteorBlaster from './GameLevelMeteorBlaster.js';
 import GameLevelMinesweeper from './GameLevelMinesweeper.js';
 import Goldfish from './Goldfish.js';
 import GameLevelEnd from './GameLevelEnd.js';
+import GameLevelNether from './GameLevelNether.js';
 
 
 
@@ -28,7 +29,235 @@ class GameLevelDesert {
         pixels: {height: 580, width: 1038}
     };
 
-
+    const sprite_src_nether_portal = path + "/images/gamify/nether_portal_small.png";
+    const sprite_greet_nether_portal = "Portal to the Nether - Face the Ghast's challenge!";
+    // Replace the nether portal sprite data with this version for better collision:
+    // Try replacing your nether portal data with this - using EXACT same settings as Tux:
+    // Replace your nether portal sprite data with this fixed version:
+    const sprite_data_nether_portal = {
+    id: 'Nether-Portal-Entry',
+    greeting: sprite_greet_nether_portal,
+    src: sprite_src_nether_portal,
+    
+    // Use more standard settings that work with collision system
+    SCALE_FACTOR: 6,                    
+    ANIMATION_RATE: 50,                 
+    pixels: {height: 800, width: 640},  
+    INIT_POSITION: { x: (width / 3), y: (height / 3)}, 
+    orientation: {rows: 1, columns: 1}, 
+    down: {row: 0, start: 0, columns: 1},
+    
+    // INCREASED hitbox size for better collision detection
+    hitbox: { widthPercentage: 0.5, heightPercentage: 0.5 }, 
+    
+    dialogues: [
+        "The Nether awaits brave adventurers.",
+        "Beware of the Ghast and its fireballs!",
+        "Use the SPACEBAR to hit back fireballs at the Ghast.",
+        "Only the skilled can survive the Nether challenge.",
+        "The portal burns with otherworldly flame.",
+        "Are you ready to face the ultimate test?"
+    ],
+    
+    // Add reaction function like other NPCs
+    reaction: function() {
+        if (this.dialogueSystem) {
+            this.showReactionDialogue();
+        } else {
+            console.log(sprite_greet_nether_portal);
+        }
+    },
+    
+    interact: function() {
+        // Clear any existing dialogue first
+        if (this.dialogueSystem && this.dialogueSystem.isDialogueOpen()) {
+            this.dialogueSystem.closeDialogue();
+            return;
+        }
+        
+        // Show a dialogue with buttons immediately
+        if (this.dialogueSystem) {
+            this.dialogueSystem.showDialogue(
+                "Do you dare enter the Nether? The Ghast awaits with deadly fireballs. Press Y to enter, N to stay.",
+                "Nether Portal",
+                this.spriteData.src
+            );
+            
+            // Create the buttons container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.justifyContent = 'space-between';
+            buttonContainer.style.marginTop = '10px';
+            
+            // Create the Yes button
+            const yesButton = document.createElement('button');
+            yesButton.textContent = "Enter Nether (Y)";
+            yesButton.style.padding = '8px 15px';
+            yesButton.style.background = '#cc3300';
+            yesButton.style.color = 'white';
+            yesButton.style.border = 'none';
+            yesButton.style.borderRadius = '5px';
+            yesButton.style.cursor = 'pointer';
+            yesButton.style.marginRight = '10px';
+            yesButton.style.fontWeight = 'bold';
+            
+            // Create the No button
+            const noButton = document.createElement('button');
+            noButton.textContent = "Stay Safe (N)";
+            noButton.style.padding = '8px 15px';
+            noButton.style.background = '#666';
+            noButton.style.color = 'white';
+            noButton.style.border = 'none';
+            noButton.style.borderRadius = '5px';
+            noButton.style.cursor = 'pointer';
+            
+            // Add keyboard listener for Y/N keys
+            const keyListener = (event) => {
+                if (event.key.toLowerCase() === 'y') {
+                    event.preventDefault();
+                    yesButton.click();
+                    document.removeEventListener('keydown', keyListener);
+                } else if (event.key.toLowerCase() === 'n') {
+                    event.preventDefault();
+                    noButton.click();
+                    document.removeEventListener('keydown', keyListener);
+                }
+            };
+            document.addEventListener('keydown', keyListener);
+            
+            // Add button functionality
+            yesButton.onclick = () => {
+                document.removeEventListener('keydown', keyListener);
+                if (this.dialogueSystem) {
+                    this.dialogueSystem.closeDialogue();
+                }
+                
+                // Clean up the current game state - ADDED DESTROYING LOGIC
+                if (gameEnv && gameEnv.gameControl) {
+                    // Store reference to the current game control
+                    const gameControl = gameEnv.gameControl;
+                    
+                    // Create dramatic transition effect
+                    const transitionOverlay = document.createElement('div');
+                    Object.assign(transitionOverlay.style, {
+                        position: 'fixed',
+                        top: '0',
+                        left: '0',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(45deg, #cc3300, #ff6600, #cc3300, #990000)',
+                        backgroundSize: '400% 400%',
+                        animation: 'netherPortal 2s ease-in-out',
+                        opacity: '0',
+                        transition: 'opacity 1s ease-in-out',
+                        zIndex: '9999',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        fontFamily: 'Arial, sans-serif',
+                        color: 'white',
+                        fontSize: '24px',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                    });
+                    
+                    // Add animation keyframes
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes netherPortal {
+                            0% { background-position: 0% 50%; }
+                            50% { background-position: 100% 50%; }
+                            100% { background-position: 0% 50%; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    const loadingText = document.createElement('div');
+                    loadingText.textContent = 'Entering the Nether...';
+                    loadingText.style.marginBottom = '20px';
+                    transitionOverlay.appendChild(loadingText);
+                    
+                    const warningText = document.createElement('div');
+                    warningText.textContent = 'Use SPACEBAR to hit back fireballs!';
+                    warningText.style.fontSize = '18px';
+                    warningText.style.color = '#ffff99';
+                    transitionOverlay.appendChild(warningText);
+                    
+                    document.body.appendChild(transitionOverlay);
+                    
+                    console.log("Starting Nether level transition...");
+                    
+                    // Fade in
+                    requestAnimationFrame(() => {
+                        transitionOverlay.style.opacity = '1';
+                        
+                        // After transition, switch to Nether level
+                        setTimeout(() => {
+                            // ADDED: Clean up current level properly (same as End Portal)
+                            if (gameControl.currentLevel) {
+                                // Properly destroy the current level
+                                console.log("Destroying current level...");
+                                gameControl.currentLevel.destroy();
+                                
+                                // Force cleanup of any remaining canvases
+                                const gameContainer = document.getElementById('gameContainer');
+                                const oldCanvases = gameContainer.querySelectorAll('canvas:not(#gameCanvas)');
+                                oldCanvases.forEach(canvas => {
+                                    console.log("Removing old canvas:", canvas.id);
+                                    canvas.parentNode.removeChild(canvas);
+                                });
+                            }
+                            
+                            console.log("Setting up Nether level...");
+                            
+                            // IMPORTANT: Store the original level classes for return journey
+                            gameControl._originalLevelClasses = gameControl.levelClasses;
+                            
+                            // Switch to Nether level
+                            gameControl.levelClasses = [GameLevelNether];
+                            gameControl.currentLevelIndex = 0;
+                            gameControl.isPaused = false;
+                            
+                            console.log("Transitioning to Nether level...");
+                            gameControl.transitionToLevel();
+                            
+                            // Fade out overlay
+                            setTimeout(() => {
+                                transitionOverlay.style.opacity = '0';
+                                setTimeout(() => {
+                                    document.body.removeChild(transitionOverlay);
+                                    document.head.removeChild(style);
+                                }, 1000);
+                            }, 500);
+                        }, 2000);
+                    });
+                }
+            };
+            
+            noButton.onclick = () => {
+                document.removeEventListener('keyListener', keyListener);
+                if (this.dialogueSystem) {
+                    this.dialogueSystem.closeDialogue();
+                }
+            };
+            
+            // Add buttons to container
+            buttonContainer.appendChild(yesButton);
+            buttonContainer.appendChild(noButton);
+            
+            // Add buttons to dialogue box
+            const dialogueBox = document.getElementById('custom-dialogue-box-' + this.dialogueSystem.id);
+            if (dialogueBox) {
+                const closeBtn = dialogueBox.querySelector('button');
+                if (closeBtn) {
+                    dialogueBox.insertBefore(buttonContainer, closeBtn);
+                } else {
+                    dialogueBox.appendChild(buttonContainer);
+                }
+            }
+        }
+    }
+};
     // Player data for Chillguy
     const sprite_src_chillguy = path + "/images/gamify/chillguy.png"; // be sure to include the path
     const CHILLGUY_SCALE_FACTOR = 5;
@@ -48,7 +277,6 @@ class GameLevelDesert {
         left: {row: 2, start: 0, columns: 3 },
         right: {row: 1, start: 0, columns: 3 },
         up: {row: 3, start: 0, columns: 3 },
-        GRAVITY: true,
         upLeft: {row: 2, start: 0, columns: 3, rotate: Math.PI/16 },
         upRight: {row: 1, start: 0, columns: 3, rotate: -Math.PI/16 },
         hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
@@ -741,6 +969,7 @@ class GameLevelDesert {
       { class: Npc, data: sprite_data_stocks },
       { class: Npc, data: sprite_data_crypto },
       { class: Npc, data: sprite_data_minesweeper },
+      { class: Npc, data: sprite_data_nether_portal },
       { class: Npc, data: sprite_data_endportal }  // Added End Portal NPC
     ];
   }

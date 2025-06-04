@@ -5,6 +5,12 @@ import DialogueSystem from "../DialogueSystem.js";
 class Npc extends Character {
     constructor(data = null, gameEnv = null) {
         super(data, gameEnv);
+
+        if (this.spriteData && gameEnv) {
+            this.spriteData.gameEnv = gameEnv;
+            this.spriteData.parent = this; // Reference to the NPC instance
+        }
+        
         this.interact = data?.interact; // Interact function
         this.currentQuestionIndex = 0;
         this.alertTimeout = null;

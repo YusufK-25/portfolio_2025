@@ -25,10 +25,23 @@ class GameLevel {
 
     for (let gameObjectClass of this.gameObjectClasses) {
         if (!gameObjectClass.data) gameObjectClass.data = {}
+        
+        // Create the game object
         let gameObject = new gameObjectClass.class(gameObjectClass.data, this.gameEnv)
         this.gameEnv.gameObjects.push(gameObject)
+        
+        // Call postCreate callback if it exists
+        if (typeof gameObjectClass.postCreate === 'function') {
+            try {
+                gameObjectClass.postCreate(gameObject);
+                console.log(`postCreate callback executed for ${gameObjectClass.data.id || 'unknown'}`);
+            } catch (error) {
+                console.error(`Error in postCreate callback for ${gameObjectClass.data.id || 'unknown'}:`, error);
+            }
+        }
     }
 
+    // Call level initialize method after all objects are created
     if (typeof this.gameLevel.initialize === "function") {
         this.gameLevel.initialize()
     }
@@ -44,7 +57,9 @@ class GameLevel {
     // Properly clean up all game objects
     for (let index = this.gameEnv.gameObjects.length - 1; index >= 0; index--) {
       // Make sure each object's destroy method is called to clean up event listeners
-      this.gameEnv.gameObjects[index].destroy()
+      if (this.gameEnv.gameObjects[index] && typeof this.gameEnv.gameObjects[index].destroy === 'function') {
+        this.gameEnv.gameObjects[index].destroy()
+      }
     }
 
     // Clear out the game objects array
@@ -56,10 +71,14 @@ class GameLevel {
   update() {
     this.gameEnv.clear()
 
+    // Update all game objects
     for (let gameObject of this.gameEnv.gameObjects) {
-      gameObject.update()
+      if (gameObject && typeof gameObject.update === 'function') {
+        gameObject.update()
+      }
     }
 
+    // Call level-specific update logic
     if (typeof this.gameLevel.update === "function") {
       this.gameLevel.update()
     }
@@ -68,7 +87,9 @@ class GameLevel {
   resize() {
     this.gameEnv.resize()
     for (let gameObject of this.gameEnv.gameObjects) {
-      gameObject.resize()
+      if (gameObject && typeof gameObject.resize === 'function') {
+        gameObject.resize()
+      }
     }
   }
 }
