@@ -6,6 +6,7 @@ import GhastFireball from './GameEngine/GhastFireball.js';
 class GameLevelNether {
   constructor(gameEnv) {
     this.gameEnv = gameEnv;
+    this.fireballHitCount = 0; // Track successful fireball hits
     
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
@@ -17,6 +18,9 @@ class GameLevelNether {
       src: image_src_nether,
       pixels: { height: 570, width: 1025 }
     };
+
+    // Store reference to this instance for use in sprite data
+    const gameLevel = this;
 
     const sprite_src_steve = path + "/images/gamify/steve.png";
     const STEVE_SCALE_FACTOR = 6;
@@ -46,13 +50,16 @@ class GameLevelNether {
       attackCooldown: 0,
       
       gameEnv: gameEnv,
+      gameLevel: gameLevel, // Direct reference to the game level instance
       
       handleAttack: function() {
+          console.log('handleAttack called, cooldown:', this.attackCooldown);
           if (this.attackCooldown <= 0) {
               this.isAttacking = true;
               this.attackCooldown = 20;
               
-              this.checkFireballHit();
+              // Call checkFireballHit with proper context
+              this.checkFireballHit.call(this);
               
               setTimeout(() => {
                   this.isAttacking = false;
@@ -61,10 +68,17 @@ class GameLevelNether {
       },
       
       checkFireballHit: function() {
-          if (!this.gameEnv || !this.gameEnv.gameObjects) return;
+          console.log('checkFireballHit called');
+          if (!this.gameEnv || !this.gameEnv.gameObjects) {
+              console.log('No gameEnv or gameObjects');
+              return;
+          }
           
           const playerPos = this.parent ? this.parent.position : null;
-          if (!playerPos) return;
+          if (!playerPos) {
+              console.log('No player position');
+              return;
+          }
           
           const fireballs = this.gameEnv.gameObjects.filter(obj => 
               obj instanceof GhastFireball && 
@@ -73,6 +87,8 @@ class GameLevelNether {
               obj.spriteData.damagePlayer === true
           );
           
+          console.log('Found fireballs:', fireballs.length);
+          
           for (let fireball of fireballs) {
               if (!fireball.position) continue;
               
@@ -80,13 +96,30 @@ class GameLevelNether {
               const dy = fireball.position.y - playerPos.y;
               const distance = Math.sqrt(dx * dx + dy * dy);
               
+              console.log('Fireball distance:', distance);
+              
               if (distance < 80) {
+                  console.log('Fireball hit! Distance:', distance);
+                  
                   const ghasts = this.gameEnv.gameObjects.filter(obj =>
                       obj.spriteData && obj.spriteData.id === 'Ghast'
                   );
                   
                   if (ghasts.length > 0) {
                       fireball.reverseDirection(ghasts[0]);
+                      
+                      // Increment hit count and check for win condition
+                      if (this.gameLevel) {
+                          this.gameLevel.fireballHitCount++;
+                          console.log('Hit count increased to:', this.gameLevel.fireballHitCount);
+                          
+                          if (this.gameLevel.fireballHitCount >= 2) {
+                              console.log('Victory condition met!');
+                              this.gameLevel.handleVictory();
+                          }
+                      } else {
+                          console.log('No gameLevel reference found');
+                      }
                   }
                   break;
               }
@@ -151,12 +184,19 @@ class GameLevelNether {
       
       reaction: function () {
         this.health -= 30;
+        console.log('Ghast health:', this.health);
         if (this.health <= 0) {
+          console.log('Ghast destroyed!');
           if (this.parent && this.gameEnv && this.gameEnv.gameObjects) {
             const index = this.gameEnv.gameObjects.indexOf(this.parent);
             if (index > -1) {
               this.gameEnv.gameObjects.splice(index, 1);
             }
+          }
+          // Trigger victory when ghast is destroyed
+          if (gameLevel) {
+            console.log('Calling handleVictory from ghast destruction');
+            gameLevel.handleVictory();
           }
         }
       }
@@ -253,7 +293,8 @@ class GameLevelNether {
             
             if (event.code === 'Space' && this.spriteData && this.spriteData.handleAttack) {
               event.preventDefault();
-              this.spriteData.handleAttack();
+              console.log('Space key pressed - calling handleAttack');
+              this.spriteData.handleAttack.call(this.spriteData);
             }
           };
           
@@ -363,6 +404,7 @@ class GameLevelNether {
                 }
                 
               } catch (error) {
+                console.error('Error creating fireball:', error);
               }
             };
             
@@ -416,6 +458,73 @@ class GameLevelNether {
     ];
     
     this.cleanupPreviousLevel(gameEnv);
+  }
+
+  // Enhanced method to handle victory
+  handleVictory() {
+    console.log('handleVictory called with hitCount:', this.fireballHitCount);
+    
+    // Prevent multiple victory screens
+    if (this.victoryTriggered) {
+      console.log('Victory already triggered, ignoring');
+      return;
+    }
+    
+    this.victoryTriggered = true;
+    
+    // Remove any existing victory screen
+    const existingVictory = document.getElementById('victory-screen');
+    if (existingVictory) {
+      existingVictory.remove();
+    }
+    
+    this.showVictoryScreen();
+    
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  }
+
+  // Enhanced method to display victory screen
+  showVictoryScreen() {
+    console.log('Showing victory screen');
+    
+    const victoryDiv = document.createElement('div');
+    victoryDiv.id = 'victory-screen';
+    victoryDiv.style.cssText = `
+      position: fixed !important; 
+      top: 0 !important; 
+      left: 0 !important; 
+      width: 100% !important; 
+      height: 100% !important;
+      background-color: rgba(0, 50, 0, 0.95) !important; 
+      display: flex !important; 
+      flex-direction: column !important;
+      justify-content: center !important; 
+      align-items: center !important; 
+      z-index: 99999 !important;
+      color: #00FF00 !important; 
+      font-size: 48px !important; 
+      font-family: Arial, sans-serif !important;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+      pointer-events: auto !important;
+    `;
+    victoryDiv.innerHTML = `
+      <div>🎉 VICTORY! 🎉</div>
+      <div style="font-size: 32px; margin-top: 20px;">You defeated the Ghast!</div>
+      <div style="font-size: 24px; margin-top: 10px;">Fireballs Hit Back: ${this.fireballHitCount}/2</div>
+      <div style="font-size: 18px; margin-top: 20px;">Restarting in 3 seconds...</div>
+    `;
+    
+    // Ensure it's added to the body and visible
+    document.body.appendChild(victoryDiv);
+    
+    // Force visibility
+    setTimeout(() => {
+      victoryDiv.style.display = 'flex';
+    }, 10);
+    
+    console.log('Victory screen added to DOM');
   }
 
   initialize() {
@@ -502,7 +611,7 @@ class GameLevelNether {
     const elementsToRemove = [
       'eye-counter-container', 'game-timer', 'dom-portal', 
       'game-over-screen', 'dialogue-container', 'level-ui', 
-      'score-display', 'health-bar'
+      'score-display', 'health-bar', 'victory-screen'
     ];
     
     elementsToRemove.forEach(id => {
@@ -535,6 +644,8 @@ class GameLevelNether {
   }
   
   resetGlobalStates() {
+    this.victoryTriggered = false; // Reset victory flag
+    
     if (window.gameStats) {
       const preservedStats = {
         totalScore: window.gameStats.totalScore || 0,

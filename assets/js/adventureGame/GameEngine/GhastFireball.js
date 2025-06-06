@@ -31,12 +31,11 @@ class GhastFireball {
             hitBackSpeed: 6
         };
 
-        // CRITICAL: Add these properties for game engine compatibility
+
         this.element = null; // No DOM element needed for canvas-based projectile
         this.size = { width: this.radius * 2, height: this.radius * 2 };
         this.state = { collisionEvents: [] };
 
-        // FIXED: Create a canvas element for this fireball to ensure proper rendering
         this.canvas = document.createElement('canvas');
         this.canvas.width = gameEnv.innerWidth;
         this.canvas.height = gameEnv.innerHeight;
